@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+<head>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(43, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            grid-gap: 0px;
+        }
+        .header-box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f2f2f2;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .icu_core_header {
+            width: 100px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ed0b0b;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .caseroom_header {
+            width: 100px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #9653ae;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .rotating_header {
+            width: 100px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 90%;
+            text-align: center;
+        }
+        .month {
+            width: 50px;
+            height: 50px;
+            border: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #808080;
+            border-color: #808080;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    {% load extras %}
+        <div class="grid">
+            
+            {% for i in '012'|make_list %}
+                {% if i == '0' %}
+                    <div class="header-box" style="width: 100px; font-size: 105%;">DAYS</div>
+                {% else %}
+                    <div class="header-box" style="width: 100px;"></div>
+                {% endif %}
+
+                {% for day in days %}
+                    {% with month=day|date:'M' %}
+                    {% with num=day|date:'d' %}
+                    {% with day_name=day|date:'D' %}
+
+                        {% if i == '0' %}
+                            {% if forloop.counter0 == 0 or num == '01' %}
+                                <div class="month">{{ month }}</div>
+                            {% else %}
+                                <div class="month"></div>
+                            {% endif %}
+                        {% elif i == '1' %}
+                            <div class="header-box" style="font-size: 105%; background-color: #f3ff4c;">{{ num }}</div>
+                        {% else %}
+                            <div class="header-box" 
+                                {% if day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
+                                    style="font-size: 105%; background-color: #f3ff4c;"
+                                {% else %}
+                                    style="font-size: 105%;"
+                                {% endif %}>{{ day_name }}</div>
+                        {% endif %}
+                    
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+                {% endfor %}
+            {% endfor %}
+
+            {% for person in people %}
+
+                {% if person <= 1 %}
+                    <div class="icu_core_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>ICU CORE</div>
+                {% elif person <= 5 %}
+                    <div class="caseroom_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>CASEROOM</div>
+                {% else %}
+                    <div class="rotating_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>ROTATING</div>
+                {% endif %}
+
+                {% for day in days %}
+                    {% with day_formatted=day|date:'Y-m-d' %}
+                        {% with day_name=day|date:'D' %}
+                        {% with key=day_formatted|stringify:person %}
+                        {% with found=date_row_dict|dict_key:key %}
+                            <div class="box"
+                                data-date="{{ day_formatted }}"
+                                data-column="{{ forloop.counter0 }}"
+                                data-row="{{ person }}"
+                                data-t="{{ found }}"
+                                {% if person == 2 or person == 6 %}
+
+                                    {% if day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
+                                        style="background-color: #f3ff4c; border-top: 1px solid black;"
+                                    {% else %}
+                                        style="border-top: 1px solid black;"
+                                    {% endif %}
+
+                                {% elif person == 1 or person == 5 %}
+                                    {% if day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
+                                        style="background-color: #f3ff4c; border-bottom: 1px solid black"
+                                    {% else %}
+                                        style="border-bottom: 1px solid black;"
+                                    {% endif %}
+                                
+                                {% elif day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
+                                    style="background-color: #f3ff4c;"
+
+                                {% endif %}>{% if found == logged_in %}{{ logged_in|get_initials }}{% endif %}
+                            </div>
+                        {% endwith %}
+                        {% endwith %}
+                        {% endwith %}
+                    {% endwith %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+</body>
+</html>

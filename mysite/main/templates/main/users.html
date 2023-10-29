@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+    {% load extras %}
+    <ul>
+        {% for i in length %}
+            <li>{{ usernames|get_index:i }}: {{ names|get_index:i }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'register' %}">Register New Users</a>
+</html>
