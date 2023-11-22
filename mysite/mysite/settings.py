@@ -103,6 +103,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#Password reset
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -123,7 +132,10 @@ STATIC_URL = "static/"
 
 CRISPY_TEMPLATE_PACK="bootstrap4"
 
-LOGIN_REDIRECT_URL = "/select_dates"
+LOGIN_REDIRECT_URL = "/schedule_view"
+LOGIN_URL = "/login"
+LOGOUT_REDIRECT_URL = "/login"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
