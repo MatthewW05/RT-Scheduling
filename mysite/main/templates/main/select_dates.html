@@ -1,4 +1,113 @@
+{% extends 'main/base.html' %}
+{% block content %}
 <!DOCTYPE html>
+{% load extras %}
+
+{% if logged_in.is_superuser %}
+<html>
+<head>
+	<style type="text/css">
+         body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .container {
+            display: flex;
+        }
+
+		.sidenav {
+			height:100%;
+			width:100px;
+			position: fixed;
+			z-index:1;
+			top:19;
+			left:0;
+			background-color:#111;
+			overflow-x: hidden;
+			padding-bottom:20px;
+		}
+ 
+		.sidenav a {
+			padding:6px 8px 6px 16px;
+			text-decoration: none;
+            text-align: left;
+			font-size:17px;
+			color: #818181;
+			display:block;
+            z-index: 4;
+		}
+ 
+		.sidenav a:hover{
+			color:#f1f1f1;
+            z-index: 4;
+		}	
+ 
+		.main {
+			margin-left: 77px;
+		}
+
+        .dropdown {
+            display: inline-block;
+            position: relative;
+            z-index: 3;
+        }
+        .dropdown disp{
+            padding:6px 8px 6px 16px;
+            z-index: 2;
+            color: #818181;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            width: 100%;
+            overflow: auto;
+            z-index: 3;
+        }
+        .dropdown:hover .dropdown-content {
+            padding:6px 8px 6px 16px;
+			text-decoration: none;
+            text-align: left;
+			font-size:17px;
+			color: #818181;
+			display:block;
+            z-index: 4;
+            position: relative;
+        }
+        .dropdown-content a {
+            display: block;
+            color: #818181;
+            padding: 5px;
+            text-decoration: none;
+            z-index: 3;
+        }
+        .dropdown-content a:hover {
+            color: #FFFFFF;
+            background-color: #00A4BD;
+            z-index: 3;
+        }
+	</style>
+</head>
+<body>
+	<div class="sidenav">
+		<a href="/schedule_view" style="padding-top: 60px;">Schedule</a>
+        {% for key, item in sidebar_info.items %}
+            <div class="dropdown" style="margin-bottom: 10px;">
+                    <disp style="z-index: 2">{% if key != "unsorted" %}Group {{ key }}{% else %}Unsorted{% endif %}</disp>
+                    <div class="dropdown-content">
+                        {% for person in item %}
+                            <a href="/admin_select_dates/{{ person }}" style="z-index: 3">{{ person|display_name }}</a>
+                        {% endfor %}
+                    </div>
+            </div>
+        {% endfor %}
+	</div>
+</body>
+</html>
+{% endif %}
+
+<div id="content", name="content", class="main">
+
 <html>
 
 <meta charset="utf-8">
@@ -13,8 +122,13 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(43, 1fr);
-            grid-template-rows: repeat(15, 1fr);
+            grid-template-rows: repeat(37, 1fr);
+            width: min-content;
             grid-gap: 0px;
+            padding-top: 54px;
+            {% if logged_in.is_superuser %}
+            padding-left: 22px;
+            {% endif %}
         }
         .header-box {
             width: 50px;
@@ -29,7 +143,7 @@
             font-weight: bold;
         }
         .icu_core_header {
-            width: 100px;
+            width: 200px;
             height: 50px;
             border: 1px solid #ccc;
             display: flex;
@@ -41,7 +155,7 @@
             font-weight: bold;
         }
         .caseroom_header {
-            width: 100px;
+            width: 200px;
             height: 50px;
             border: 1px solid #ccc;
             display: flex;
@@ -53,13 +167,49 @@
             font-weight: bold;
         }
         .rotating_header {
-            width: 100px;
+            width: 200px;
             height: 50px;
             border: 1px solid #ccc;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: white;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .medicine_header {
+            width: 200px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #93C572;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .orrt_header {
+            width: 200px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgb(248, 149, 1);
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .bridgepoint_header {
+            width: 200px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #56b616;
             font-size: 105%;
             text-align: center;
             font-weight: bold;
@@ -71,7 +221,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            {% if can_select %}
             cursor: pointer;
+            {% endif %}
         }
         .box.checked {
             background-color: #009688;
@@ -85,9 +237,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            {% if can_select %}
             cursor: pointer;
+            {% endif %}
         }
         .weekend.checked {
+            background-color: #009688;
+            color: white;
+        }
+        .blues {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            background-color: skyblue;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            {% if can_select %}
+            cursor: pointer;
+            {% endif %}
+        }
+        .blues.checked {
             background-color: #009688;
             color: white;
         }
@@ -99,7 +269,7 @@
             align-items: center;
             justify-content: center;
             background-color: #e7e7e7;
-            font-size: 105%;
+            font-size: 85%;
             text-align: center;
         }
         .month {
@@ -120,14 +290,15 @@
 <body>
     <form method="post">
         {% csrf_token %}
-        {% load extras %}
         <div class="grid">
             
             {% for i in '012'|make_list %}
                 {% if i == '0' %}
-                    <div class="header-box" style="width: 100px; font-size: 105%;">DAYS</div>
+                    <div class="header-box" style="width: 200px; font-size: 135%;">DAYS</div>
+                {% elif i == '1' %}
+                    <div class="header-box" style="width: 200px; font-size: 65%;">Start selecting: {{ start }} End selecting: {{ end }}</div>
                 {% else %}
-                    <div class="header-box" style="width: 100px;"></div>
+                    <div class="header-box" style="width: 200px; font-size: 70%;">{% if error_message %}One or more of the dates you selected have been taken{% endif %}</div>
                 {% endif %}
 
                 {% for day in days %}
@@ -144,8 +315,8 @@
                         {% elif i == '1' %}
                             <div class="header-box" style="font-size: 105%; background-color: #f3ff4c;">{{ num }}</div>
                         {% else %}
-                            <div class="header-box" 
-                                {% if day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
+                            <div class="header-box"
+                                {% if day_name == 'Sat' or day_name == 'Sun' %}
                                     style="font-size: 105%; background-color: #f3ff4c;"
                                 {% else %}
                                     style="font-size: 105%;"
@@ -174,6 +345,61 @@
                         {% elif person == 1 or person == 5 %}
                             style="border-bottom: 1px solid black;"
                         {% endif %}>CASEROOM</div>
+                {% elif person <= 12 %}
+                    <div class="rotating_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>ROTATING</div>
+                {% elif person <= 13 %}
+                    <div class="medicine_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>MEDICINE</div>
+                {% elif person <= 14 %}
+                    <div class="caseroom_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>OR C/Section</div>
+                {% elif person <= 15 %}
+                    <div class="orrt_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>OR RT</div>
+                {% elif person <= 16 %}
+                    <div class="bridgepoint_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>BRIDGEPOINT</div>
+                {% elif person <= 19 %}
+                    {% if person == 17 %}
+                        <div class="header-box" style="width: 200px; font-size: 135%;">NIGHTS</div>
+                    {% else %}
+                        <div class="header-box" style="width: 200px; font-size: 105%;"></div>
+                    {% endif %}
+                {% elif person <= 21 %}
+                    <div class="icu_core_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>ICU CORE</div>
+                {% elif person <= 25 %}
+                    <div class="caseroom_header"
+                        {% if person == 2 or person == 6 %}
+                            style="border-top: 1px solid black"
+                        {% elif person == 1 or person == 5 %}
+                            style="border-bottom: 1px solid black;"
+                        {% endif %}>CASEROOM</div>
                 {% else %}
                     <div class="rotating_header"
                         {% if person == 2 or person == 6 %}
@@ -186,89 +412,136 @@
                 {% for day in days %}
                     {% with day_formatted=day|date:'Y-m-d' %}
                         {% with day_name=day|date:'D' %}
+                        {% with month=day|date:'M' %}
+                        {% with num=day|date:'d' %}
                         {% with found=date_row_dict|dict_key:day_formatted %}
 
                         {% with key=day_formatted|stringify:person %}
                         {% with check=date_row_dict_all|dict_key:key %}
 
-                            {% if found == person %} <!--Checks the boxes that were previously selected-->
-                                {% if day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
-                                    <div class="weekend checked"
-                                        data-date="{{ day_formatted }}"
-                                        data-column="{{ forloop.counter0 }}"
-                                        data-row="{{ person }}"
-                                        data-t="{{ found }}"
-                                        {% if person == 2 or person == 6 %}
-                                            style="border-top: 1px solid black";
-                                        {% elif person == 1 or person == 5 %}
-                                            style="border-bottom: 1px solid black";
-                                        {% endif %}>
-                                    </div>
+                            {% if 17 <= person and person <= 19 %}
+                                {% if person == 17 %}
+                                    {% if forloop.counter0 == 0 or num == '01' %}
+                                        <div class="month">{{ month }}</div>
+                                    {% else %}
+                                        <div class="month"></div>
+                                    {% endif %}
+                                {% elif person == 18 %}
+                                    <div class="header-box" style="font-size: 105%; background-color: #f3ff4c;">{{ num }}</div>
                                 {% else %}
-                                    <div class="box checked"
-                                        data-date="{{ day_formatted }}"
-                                        data-column="{{ forloop.counter0 }}"
-                                        data-row="{{ person }}"
-                                        data-t="{{ found }}"
-                                        {% if person == 2 or person == 6 %}
+                                    <div class="header-box" 
+                                        {% if day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
+                                            style="font-size: 105%; background-color: #f3ff4c;"
+                                        {% else %}
+                                            style="font-size: 105%;"
+                                        {% endif %}>{{ day_name }}</div>
+                                {% endif %}
+                            {% else %}
+                                {% if found == person %} <!--Checks the boxes that were previously selected-->
+                                    {% if day_name == 'Fri' and person > 19 or day_name == 'Sat' or day_name == 'Sun' %}
+                                        <div class="weekend checked"
+                                            data-date="{{ day_formatted }}"
+                                            data-column="{{ forloop.counter0 }}"
+                                            data-row="{{ person }}"
+                                            data-t="{{ found }}"
+                                            {% if person == 2 or person == 6 %}
+                                                style="border-top: 1px solid black";
+                                            {% elif person == 1 or person == 5 %}
+                                                style="border-bottom: 1px solid black";
+                                            {% endif %}>
+                                        </div>
+                                    {% elif person == 6 and day_name == 'Wed' or person == 6 and day_name == 'Fri' %}
+                                        <div class="blues checked"
+                                            data-date="{{ day_formatted }}"
+                                            data-column="{{ forloop.counter0 }}"
+                                            data-row="{{ person }}"
+                                            data-t="{{ check }}"
+                                            style="border-top: 1px solid black;">
+                                        </div>
+                                    {% else %}
+                                        <div class="box checked"
+                                            data-date="{{ day_formatted }}"
+                                            data-column="{{ forloop.counter0 }}"
+                                            data-row="{{ person }}"
+                                            data-t="{{ found }}"
+                                            {% if person in top_border_rows and person in bottom_border_rows %}
+                                                style="border-top: 1px solid black; border-bottom: 1px solid black";
+                                            {% elif person in top_border_rows %}
+                                                style="border-top: 1px solid black";
+                                            {% elif person in bottom_border_rows %}
+                                                style="border-bottom: 1px solid black";
+                                            {% endif %}>
+                                        </div>
+                                    {% endif %}
+                                {% elif check != user and check == -1 %} <!--Places regular boxes-->
+                                    {% if day_name == 'Fri' and person > 19 or day_name == 'Sat' or day_name == 'Sun' %}
+                                        <div class="weekend"
+                                            data-date="{{ day_formatted }}"
+                                            data-column="{{ forloop.counter0 }}"
+                                            data-row="{{ person }}"
+                                            data-t="{{ check }}"
+                                            {% if person in top_border_rows and person in bottom_border_rows %}
+                                                style="border-top: 1px solid black; border-bottom: 1px solid black";
+                                            {% elif person in top_border_rows %}
+                                                style="border-top: 1px solid black";
+                                            {% elif person in bottom_border_rows %}
+                                                style="border-bottom: 1px solid black";
+                                            {% endif %}>
+                                        </div>
+                                    {% elif person == 6 and day_name == 'Wed' or person == 6 and day_name == 'Fri' %}
+                                        <div class="blues"
+                                                data-date="{{ day_formatted }}"
+                                                data-column="{{ forloop.counter0 }}"
+                                                data-row="{{ person }}"
+                                                data-t="{{ check }}"
+                                                style="border-top: 1px solid black;">
+                                            </div>
+                                    {% else %}
+                                        <div class="box"
+                                            data-date="{{ day_formatted }}"
+                                            data-column="{{ forloop.counter0 }}"
+                                            data-row="{{ person }}"
+                                            data-t="{{ check }}"
+                                            {% if person in top_border_rows and person in bottom_border_rows %}
+                                                style="border-top: 1px solid black; border-bottom: 1px solid black";
+                                            {% elif person in top_border_rows %}
+                                                style="border-top: 1px solid black";
+                                            {% elif person in bottom_border_rows %}
+                                                style="border-bottom: 1px solid black";
+                                            {% endif %}>
+                                        </div>
+                                    {% endif %}
+                                {% else %} <!--Greys out boxes selected by others-->
+                                    <div class="taken"
+                                        {% if person in top_border_rows and person in bottom_border_rows %}
+                                            style="border-top: 1px solid black; border-bottom: 1px solid black;";
+                                        {% elif person in top_border_rows %}
                                             style="border-top: 1px solid black";
-                                        {% elif person == 1 or person == 5 %}
+                                        {% elif person in bottom_border_rows %}
                                             style="border-bottom: 1px solid black";
-                                        {% endif %}>
+                                        {% endif %}>{% if logged_in.is_superuser %}{{ check|display_name }}{% endif %}
                                     </div>
                                 {% endif %}
-                            {% elif check != user and check == -1 %} <!--Places regular boxes-->
-                                {% if day_name == 'Fri' or day_name == 'Sat' or day_name == 'Sun' %}
-                                    <div class="weekend"
-                                        data-date="{{ day_formatted }}"
-                                        data-column="{{ forloop.counter0 }}"
-                                        data-row="{{ person }}"
-                                        data-t="{{ check }}"
-                                        {% if person == 2 or person == 6 %}
-                                            style="border-top: 1px solid black";
-                                        {% elif person == 1 or person == 5 %}
-                                            style="border-bottom: 1px solid black";
-                                        {% endif %}>
-                                    </div>
-                                {% else %}
-                                    <div class="box"
-                                        data-date="{{ day_formatted }}"
-                                        data-column="{{ forloop.counter0 }}"
-                                        data-row="{{ person }}"
-                                        data-t="{{ check }}"
-                                        {% if person == 2 or person == 6 %}
-                                            style="border-top: 1px solid black";
-                                        {% elif person == 1 or person == 5 %}
-                                            style="border-bottom: 1px solid black";
-                                        {% endif %}>
-                                    </div>
-                                {% endif %}
-                            {% else %} <!--Greys out boxes selected by others-->
-                                <div class="taken"
-                                    {% if person == 2 or person == 6 %}
-                                        style="border-top: 1px solid black";
-                                    {% elif person == 1 or person == 5 %}
-                                        style="border-bottom: 1px solid black";
-                                    {% endif %}>
-                                </div>
                             {% endif %}
-
                         {% endwith %}
                         {% endwith %}
-
+                        {% endwith %}
+                        {% endwith %}
                         {% endwith %}
                         {% endwith %}
                     {% endwith %}
                 {% endfor %}
             {% endfor %}
         </div>
+        {% if can_select %}
         <input type="hidden" name="selected_dates" id="selected_dates">
         <input type="hidden" name="row" id="row">
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" class="btn btn-success" style="margin-left: 25px;">Submit</button>
+        {% endif %}
     </form>
-
+    {% if can_select %}
     <script>
-        const boxes = document.querySelectorAll('.box, .weekend');
+        const boxes = document.querySelectorAll('.box, .weekend, .blues');
     
         boxes.forEach(box => {
             box.addEventListener('click', () => {
@@ -280,11 +553,13 @@
                 if (box.classList.contains('checked')) {
                     box.classList.remove('checked');
                 } else {
+                    {% if user|display_name != "X" %}
                     columnBoxes.forEach(b => b.classList.remove('checked'));
+                    {% endif %}
     
                     box.classList.add('checked');
     
-                    const selectedDates = document.querySelectorAll('.box.checked, .weekend.checked');
+                    const selectedDates = document.querySelectorAll('.box.checked, .weekend.checked, .blues.checked');
                     const formattedDates = Array.from(selectedDates).map(date => date.dataset.date);
                     formattedDates.push(row); // Add the row value to the selected dates
     
@@ -296,15 +571,18 @@
     
         const form = document.querySelector('form');
         form.addEventListener('submit', () => {
-            const selectedDates = document.querySelectorAll('.box.checked, .weekend.checked');
+            const selectedDates = document.querySelectorAll('.box.checked, .weekend.checked, .blues.checked');
             const formattedDates = Array.from(selectedDates).map(date => date.dataset.date);
             document.getElementById("selected_dates").value = formattedDates.join(',');
     
-            const selectedRows = document.querySelectorAll('.box.checked, .weekend.checked');
+            const selectedRows = document.querySelectorAll('.box.checked, .weekend.checked, .blues.checked');
             const formattedRows = Array.from(selectedRows).map(row => row.dataset.row);
             document.getElementById("row").value = formattedRows.join(',');
         });
     </script>
+    {% endif %}
     
 </body>
 </html>
+</div>
+{% endblock %}

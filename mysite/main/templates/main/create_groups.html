@@ -1,0 +1,193 @@
+{% extends 'main/base.html' %}
+
+<!DOCTYPE html>
+{% block content %}
+<html>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<head>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat({{num_of_users}}, 1fr);
+            width: min-content;
+            grid-gap: 0px;
+            padding-top: 54px;
+        }
+        .header-box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f2f2f2;
+            font-size: 50%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .icu_core_header {
+            width: 100px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ed0b0b;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .caseroom_header {
+            width: 100px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #9653ae;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .rotating_header {
+            width: 100px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .box.checked {
+            background-color: #009688;
+            color: white;
+        }
+        .weekend {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            background-color: #f3ff4c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .weekend.checked {
+            background-color: #009688;
+            color: white;
+        }
+        .taken {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #8b8b8b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e7e7e7;
+            font-size: 105%;
+            text-align: center;
+        }
+        .month {
+            width: 50px;
+            height: 50px;
+            border: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #808080;
+            border-color: #808080;
+            font-size: 105%;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        {% load extras %}
+        <div class="grid">
+            <div class="header-box" style="width: 200px; font-size: 90%;"></div>
+            {% for i in '123456'|make_list %}
+                <div class="header-box" style="font-size: 90%;">{{ i }}</div>
+            {% endfor %}
+            {% for name, person in user_with_names.items %}
+                <div class="header-box" style="width: 200px; font-size: 90%;">{{ name }}</div>
+                {% for i in '123456'|make_list %}
+                    {% with check=prev_selected_dict|dict_key:person %}
+                        {% if check == forloop.counter0 %}
+                            <div class="box checked" data-person="{{ person }}" data-group="{{ i }}" data-row="{{ i }}" data-column="{{ forloop.counter0 }}"></div>
+                        {% else %}
+                            <div class="box" data-person="{{ person }}" data-group="{{ i }}" data-row="{{ i }}" data-column="{{ forloop.counter0 }}"></div>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+        <input type="hidden" name="selected_row" id="selected_row">
+        <input type="hidden" name="selected_column" id="selected_column">
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+
+    <script>
+        const boxes = document.querySelectorAll('.box, .weekend');
+    
+        boxes.forEach(box => {
+            box.addEventListener('click', () => {
+                const column = box.dataset.column;
+                const row = box.dataset.person; // Get the user value
+                const columnBoxes = document.querySelectorAll(`[data-column="${column}"]`);
+                const rowBoxes = document.querySelectorAll(`[data-person="${row}"]`);
+    
+                if (box.classList.contains('checked')) {
+                    box.classList.remove('checked');
+                } else {
+                    rowBoxes.forEach(b => b.classList.remove('checked'));
+    
+                    box.classList.add('checked');
+    
+                    const selectedDates = document.querySelectorAll('.box.checked, .weekend.checked');
+                    const formattedDates = Array.from(selectedDates).map(user => user.dataset.person);
+                    formattedDates.push(row); // Add the column value to the selected users
+    
+                    document.getElementById("selected_row").value = row;
+                    document.getElementById("selected_column").value = formattedDates.join(',');
+                }
+            });
+        });
+    
+        const form = document.querySelector('form');
+        form.addEventListener('submit', () => {
+            const selectedDates = document.querySelectorAll('.box.checked, .weekend.checked');
+            const formattedDates = Array.from(selectedDates).map(user => user.dataset.person);
+            document.getElementById("selected_row").value = formattedDates.join(',');
+    
+            const selectedColumns = document.querySelectorAll('.box.checked, .weekend.checked');
+            const formattedColumns = Array.from(selectedColumns).map(group => group.dataset.column);
+            document.getElementById("selected_column").value = formattedColumns.join(',');
+        });
+    </script>
+
+</body>
+</html>
+{% endblock %}

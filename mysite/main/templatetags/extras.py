@@ -1,11 +1,12 @@
 from django import template
+from django.contrib.auth.models import User
 
 register = template.Library()
 
 @register.filter
 def get_index(h, i):
     try:
-        value = h[i]
+        value = h[int(i)]
     except:
         value = -1
     
@@ -38,3 +39,19 @@ def get_index(l, i):
         return l[int(i)]
     except:
         return None
+
+@register.filter
+def display_name(name):
+    name = str(name)
+    try:
+        for o in User.objects.all():
+            user = o.get_username()
+            if user == name:
+                display = o.get_full_name().split(" ")
+                return f"{display[0][0]}{display[1][:4]}"
+    except:
+        return name[:5]
+
+@register.filter
+def contains(l, item):
+    return item in l
