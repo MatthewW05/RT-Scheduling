@@ -7,105 +7,106 @@
 <html>
 <head>
 	<style type="text/css">
-         body {
+        body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
-        }
+       }
 
-        .container {
+       .container {
             display: flex;
-        }
+       }
 
-		.sidenav {
-			height:100%;
-			width:100px;
-			position: fixed;
-			z-index:1;
-			top:19;
-			left:0;
-			background-color:#111;
-			overflow-x: hidden;
-			padding-bottom:20px;
-		}
- 
-		.sidenav a {
-			padding:6px 8px 6px 16px;
-			text-decoration: none;
+       .sidenav {
+            height:100%;
+            width:6.7vw;
+            position: fixed;
+            z-index:1;
+            top:19;
+            left:0;
+            background-color:#111;
+            overflow-x: hidden;
+            padding-bottom:20px;
+       }
+
+       .sidenav a {
+            padding: 6px 8px 6px 1vw;
+            text-decoration: none;
             text-align: left;
-			font-size:17px;
-			color: #818181;
-			display:block;
-		}
- 
-		.sidenav a:hover{
-			color:#f1f1f1;
-		}	
- 
-		.main {
-			margin-left: 77px;
-		}
+            font-size:1vw;
+            color: #818181;
+            display:block;
+       }
+
+       .sidenav a:hover{
+            color:#f1f1f1;
+       }	
+
+       .main {
+            margin-left: 6.7vw;
+       }
 
 
-        .dropdown {
+       .dropdown {
             display: inline-block;
             position: relative;
             z-index: 3;
-        }
-        .dropdown disp {
-            padding:6px 8px 6px 16px;
-            width: 100px;
+       }
+       .dropdown disp {
+            padding:6px 8px 6px 1vw;
+            font-size: 1vw;
+            width: 6.7vw;
             z-index: 2;
             color: #818181;
-        }
-        .dropdown disp:hover {
-            padding:6px 26px 6px 16px;
-            width: 100px;
+       }
+       .dropdown disp:hover {
+            padding:6px 8px 6px 1vw;
+            width: 6.7vw;
             z-index: 2;
             color: #181818;
             background-color: #8b8b8b;
-        }
-        .dropdown-content {
+       }
+       .dropdown-content {
             display: none;
             position: absolute;
             width: 100%;
             overflow: auto;
             z-index: 3;
-        }
-        .dropdown:hover .dropdown-content {
-            padding:6px 8px 6px 16px;
-			text-decoration: none;
+       }
+       .dropdown:hover .dropdown-content {
+            padding:6px 8px 6px 1vw;
+            text-decoration: none;
             text-align: left;
-			font-size:17px;
-			color: #818181;
-			display:block;
+            font-size:1vw;
+            color: #818181;
+            display:block;
             z-index: 4;
             position: relative;
-        }
-        .dropdown-content a {
+       }
+       .dropdown-content a {
             display: block;
             color: #818181;
-            padding: 5px;
+            padding-right: 1vw;
             text-decoration: none;
             z-index: 3;
-        }
-        .dropdown-content a:hover {
+       }
+       .dropdown-content a:hover {
             color: #FFFFFF;
             background-color: #00A4BD;
             width: 100px;
             z-index: 3;
-        }
+       }
 	</style>
 </head>
 <body>
 	<div class="sidenav">
         {% if sidebar_for_old %}
             {% for day in schedules %}
-                <a href="/schedule_view/{{ day }}" {% if forloop.counter0 == 0 %}style="padding-top: 4vw; font-size: 90%;"{% else %}style="font-size: 90%;"{% endif %}>{{ day }}</a>
+                <a href="/schedule_view/{{ day }}" {% if forloop.counter0 == 0 %}style="padding-top: 5vw; font-size: 0.85vw;"{% else %}style="font-size: 0.85vw;"{% endif %}>{{ day }}</a>
             {% endfor %}
         {% elif user.is_superuser %}
-            <a href="/schedule_view" style="padding-top: 4vw;">Schedule</a>
+            <a href="/schedule_view" style="padding-top: 5vw; margin-bottom: 1vw;">Schedule</a>
             {% for key, item in sidebar_info.items %}
-                <div class="dropdown" style="margin-bottom: 10px;">
+                <div class="dropdown" style="margin-bottom: 1vw;">
                         <disp style="z-index: 2">{% if key != "unsorted" %}Group {{ key }}{% else %}Unsorted{% endif %}</disp>
                         <div class="dropdown-content">
                             {% for person in item %}
@@ -140,9 +141,6 @@
             width: min-content;
             grid-gap: 0px;
             padding-top: 4vw;
-            {% if user.is_superuser %}
-            padding-left: 22px;
-            {% endif %}
         }
         .header-box {
             width: 50px;

@@ -116,11 +116,19 @@ def select_dates(request, taken=-1):
 
             count += 1
         
-        sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], "unsorted": []}
+        sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+
+        unsorted_users = []
+
+        for o in User.objects.all():
+            unsorted_users.append(o)
 
         # Populate sidebar information with user groups
         for o in SelectionGroups.objects.filter():
             sidebar_info[o.group+1].append(o.user.get_username())
+            unsorted_users.remove(o.user)
+        
+        sidebar_info["unsorted"] = unsorted_users
 
         context = {
             'form': form, 
@@ -319,11 +327,19 @@ def admin_select_dates(request, user_n):
 
             count += 1
         
-        sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], "unsorted": []}
+        sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+
+        unsorted_users = []
+
+        for o in User.objects.all():
+            unsorted_users.append(o)
 
         # Populate sidebar information with user groups
         for o in SelectionGroups.objects.filter():
             sidebar_info[o.group+1].append(o.user.get_username())
+            unsorted_users.remove(o.user)
+        
+        sidebar_info["unsorted"] = unsorted_users
 
         context = {
             'form': form, 
