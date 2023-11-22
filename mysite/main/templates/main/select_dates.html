@@ -51,6 +51,7 @@
             display: inline-block;
             position: relative;
             z-index: 3;
+            width: 100px;
         }
         .dropdown disp{
             padding:6px 8px 6px 16px;
@@ -66,6 +67,7 @@
         }
         .dropdown:hover .dropdown-content {
             padding:6px 8px 6px 16px;
+            width: 100px;
 			text-decoration: none;
             text-align: left;
 			font-size:17px;
@@ -90,7 +92,7 @@
 </head>
 <body>
 	<div class="sidenav">
-		<a href="/schedule_view" style="padding-top: 60px;">Schedule</a>
+		<a href="/schedule_view" style="padding-top: 4vw;">Schedule</a>
         {% for key, item in sidebar_info.items %}
             <div class="dropdown" style="margin-bottom: 10px;">
                     <disp style="z-index: 2">{% if key != "unsorted" %}Group {{ key }}{% else %}Unsorted{% endif %}</disp>
@@ -125,7 +127,7 @@
             grid-template-rows: repeat(37, 1fr);
             width: min-content;
             grid-gap: 0px;
-            padding-top: 54px;
+            padding-top: 4vw;
             {% if logged_in.is_superuser %}
             padding-left: 22px;
             {% endif %}
