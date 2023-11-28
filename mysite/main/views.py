@@ -175,8 +175,12 @@ def schedule_view(request, start=-1):
         else:
             start = get_first_schedule_date()
 
-        logged_in = request.user.get_full_name().split(" ")
-        logged_in = logged_in[0][0]+logged_in[1][:4]
+        try:
+            logged_in = request.user.get_full_name().split(" ")
+            logged_in = logged_in[0][0]+logged_in[1][:4]
+        except:
+            logged_in = request.user.get_username()[:5]
+        
         selected_dates = SelectedDate.objects.values_list('selected_date', flat=True)
         selected_dates = [date.strftime('%Y-%m-%d') for date in selected_dates]
 
