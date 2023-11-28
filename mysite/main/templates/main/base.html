@@ -56,6 +56,7 @@ body {
     <a href="/schedule_view">View Schedule</a>
     <a href="/schedule_view/{{ first }}">View Past Schedules</a>
     {% if user.is_superuser or logged_in.is_superuser %}
+    <a href="/master">Master</a>
     <a href="/create_groups">Start New Schedule</a>
     <a href="/admin">Admin Console</a>
     {% endif %}

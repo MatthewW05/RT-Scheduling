@@ -13,6 +13,8 @@ urlpatterns = [
     path('admin_select_dates/<str:user_n>', views.admin_select_dates, name='admin_select_dates'),
     path('create_groups/', views.create_groups, name='create_groups'),
     path('initialize_schedule/', views.initialize_schedule, name='initialize_schedule'),
+    path('master/', views.master, name="master"),
+    path('master/<str:start>', views.master, name="master"),
 
     path('change_password/', views.change_password, name='change_password'),
     path('password_change_success/', views.password_change_success, name='password_change_success'),

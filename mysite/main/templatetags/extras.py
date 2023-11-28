@@ -53,5 +53,8 @@ def display_name(name):
         return name[:5]
 
 @register.filter
-def contains(l, item):
-    return item in l
+def find(l, i):
+    try:
+        return l.index(i)
+    except:
+        return None

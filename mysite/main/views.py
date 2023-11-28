@@ -151,7 +151,7 @@ def select_dates(request, taken=-1):
         return render(request, 'main/select_dates.html', context)
     else:
         # Render a message page if no schedules have been initialized
-        return render(request, 'main/message.html', {'test': "No Schedules have been initialized"})
+        return render(request, 'main/message.html', {'message': "No Schedules have been initialized"})
 
 @login_required
 def schedule_view(request, start=-1):
@@ -234,7 +234,7 @@ def schedule_view(request, start=-1):
 
         return render(request, 'main/schedule_view.html', context)
     else:
-        return render(request, 'main/test.html', {'test': "No Schedules have been initialized"})
+        return render(request, 'main/message.html', {'message': "No Schedules have been initialized"})
 
 @login_required
 def admin_select_dates(request, user_n):
@@ -458,6 +458,66 @@ def create_groups(request):
             })
 
         return render(request, "main/create_groups.html", context)
+
+@login_required
+def master(request, start=-1):
+    user = request.user
+
+    if user.is_superuser:
+        if len(InitiateSchedule.objects.values_list('user_start_date', flat=True)) != 0:
+            if start != -1:
+                start = datetime.strptime(start, "%Y-%m-%d").date()
+            else:
+                start = get_first_schedule_date()
+            
+            user_date_dict = {}
+            user_row_dict = {}
+            all_schedule_info = SelectedDate.objects.filter()
+            days = [start + timedelta(days=i) for i in range(42)]
+
+            for item in all_schedule_info:
+                if item.user.get_username() != "X":
+                    try:
+                        name = item.user.get_full_name().split(" ")[0]
+                        display = item.user.get_full_name().split(" ")
+                        display = f"{display[0][0]}{display[1][:4]}"
+                    except:
+                        name = item.user.get_username()
+                        display = name[:5]
+                    
+                    if (name, display) in user_date_dict:
+                        user_date_dict[(name, display)].append(item.selected_date)
+                        user_row_dict[(name, display)].append(item.row)
+                    else:
+                        user_date_dict[(name, display)] = [item.selected_date]
+                        user_row_dict[(name, display)] = [item.row]
+            
+            sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+
+            unsorted_users = []
+
+            for o in User.objects.all():
+                unsorted_users.append(o)
+
+            # Populate sidebar information with user groups
+            for o in SelectionGroups.objects.filter():
+                sidebar_info[o.group+1].append(o.user.get_username())
+                unsorted_users.remove(o.user)
+            
+            sidebar_info["unsorted"] = unsorted_users
+
+            context = {
+                "user_date_dict": user_date_dict,
+                "user_row_dict": user_row_dict,
+                "sidebar_info": sidebar_info, 
+                "days": days,
+                'schedules': get_schedules(),
+                'first': get_first_schedule(),
+            }
+
+            return render(request, "main/master.html", context)
+
+
 
 @login_required
 def view_profile(request):
