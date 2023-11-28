@@ -16,14 +16,16 @@ def home(request):
     return render(request, "main/home.html", {'first': get_first_schedule(), 'name': name,})
 
 @login_required
-def select_dates(request, taken=-1):
+def select_dates(request, check_error=-1):
     # Check if there are any schedules initialized
     if len(InitiateSchedule.objects.values_list('user_start_date', flat=True)) != 0:
-        error_message = False
+        error_message = ""
         
-        # Check if the 'taken' parameter is set, indicating that the user attempted to select already taken dates
-        if taken != -1:
-            error_message = True
+        
+        if check_error == "taken": # Check if the 'taken' parameter is set, indicating that the user attempted to select already taken dates
+            error_message = "One or more of the dates you selected have been taken"
+        elif check_error == "over": # Check if the 'over' parameter is set, indicating that the user attempted to select too many dates
+            error_message = "You may only select 20 dates per schedule"
 
         user = request.user
 
@@ -77,19 +79,25 @@ def select_dates(request, taken=-1):
                         o.delete()
 
                 already_selected = False
+                too_many = False
+
+                if len(selected_dates) > 20:
+                        too_many = True
 
                 # Save the user's new selections
-                for day, row in zip(selected_dates, rows):  # Iterate through selected_dates and rows together
+                for day, row in zip(selected_dates[:20], rows[:20]):  # Iterate through selected_dates and rows together
                     if SelectedDate.objects.filter(selected_date=day).filter(row=row):
                         already_selected = True
                     else:
                         selected_date = SelectedDate(user=user, selected_date=day, row=row)
                         selected_date.save()
 
-                if not already_selected:
+                if not already_selected and not too_many:
                     return redirect('schedule_view')
-                else:
+                elif already_selected:
                     return redirect('/select_dates/taken')
+                else:
+                    return redirect('/select_dates/over')
         else:
             form = DateSelectionForm(initial={
             'selected_dates': ','.join(selected_dates),
@@ -476,21 +484,22 @@ def master(request, start=-1):
             days = [start + timedelta(days=i) for i in range(42)]
 
             for item in all_schedule_info:
-                if item.user.get_username() != "X":
-                    try:
-                        name = item.user.get_full_name().split(" ")[0]
-                        display = item.user.get_full_name().split(" ")
-                        display = f"{display[0][0]}{display[1][:4]}"
-                    except:
-                        name = item.user.get_username()
-                        display = name[:5]
-                    
-                    if (name, display) in user_date_dict:
-                        user_date_dict[(name, display)].append(item.selected_date)
-                        user_row_dict[(name, display)].append(item.row)
-                    else:
-                        user_date_dict[(name, display)] = [item.selected_date]
-                        user_row_dict[(name, display)] = [item.row]
+                if days[0] <= item.selected_date <= days[-1]:
+                    if item.user.get_username() != "X":
+                        try:
+                            name = item.user.get_full_name().split(" ")[0]
+                            display = item.user.get_full_name().split(" ")
+                            display = f"{display[0][0]}{display[1][:4]}"
+                        except:
+                            name = item.user.get_username()
+                            display = name[:5]
+                        
+                        if (name, display) in user_date_dict:
+                            user_date_dict[(name, display)].append(item.selected_date)
+                            user_row_dict[(name, display)].append(item.row)
+                        else:
+                            user_date_dict[(name, display)] = [item.selected_date]
+                            user_row_dict[(name, display)] = [item.row]
             
             sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
 

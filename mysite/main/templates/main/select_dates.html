@@ -304,7 +304,7 @@
                 {% elif i == '1' %}
                     <div class="header-box" style="width: 200px; font-size: 65%;">Start selecting: {{ start }} End selecting: {{ end }}</div>
                 {% else %}
-                    <div class="header-box" style="width: 200px; font-size: 70%;">{% if error_message %}One or more of the dates you selected have been taken{% endif %}</div>
+                    <div class="header-box" style="width: 200px; font-size: 70%; color: red;">{% if error_message != "" %}{{ error_message }}{% endif %}</div>
                 {% endif %}
 
                 {% for day in days %}
