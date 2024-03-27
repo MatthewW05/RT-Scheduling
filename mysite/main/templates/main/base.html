@@ -52,7 +52,7 @@ body {
 
 <div class="topnav">
     <a class="active" href="/">Home</a>
-    <a href="/select_dates">Select Dates</a>
+    <a href="/select_dates">Select Shifts</a>
     <a href="/schedule_view">View Schedule</a>
     <a href="/schedule_view/{{ first }}">View Past Schedules</a>
     {% if user.is_superuser or logged_in.is_superuser %}
@@ -60,7 +60,6 @@ body {
     <a href="/create_groups">Start New Schedule</a>
     <a href="/admin">Admin Console</a>
     {% endif %}
-    <a href="/change_password">Change Password</a>
     <a href="/profile">Profile</a>
     <a href="/logout">Log Out</a>
 </div>

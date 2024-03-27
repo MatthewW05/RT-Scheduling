@@ -8,15 +8,40 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
-from GetScheduleInfo import get_schedules, get_first_schedule, get_first_schedule_date
+from functions import *
+from okta_oauth2.decorators import okta_login_required
 
 @login_required
+@okta_login_required
 def home(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
     name = request.user.get_full_name()
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+
     return render(request, "main/home.html", {'first': get_first_schedule(), 'name': name,})
 
 @login_required
+@okta_login_required
 def select_dates(request, check_error=-1):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     # Check if there are any schedules initialized
     if len(InitiateSchedule.objects.values_list('user_start_date', flat=True)) != 0:
         error_message = ""
@@ -35,7 +60,12 @@ def select_dates(request, check_error=-1):
         selection_start = datetime.combine(selection_start, datetime.min.time()) + timedelta(hours=7.5)
 
         now = datetime.now()
-        group = SelectionGroups.objects.filter(user=user)[0].group
+
+        try:
+            group = SelectionGroups.objects.filter(user=user)[0].group
+        except:
+            return render(request, 'main/message.html', {'message': "You have not been added to a group!"})
+        
         target = (selection_start + timedelta(days=(3*group)), selection_start + timedelta(days=(3*group+3)))
         can_select = False
 
@@ -162,7 +192,19 @@ def select_dates(request, check_error=-1):
         return render(request, 'main/message.html', {'message': "No Schedules have been initialized"})
 
 @login_required
+@okta_login_required
 def schedule_view(request, start=-1):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     # Check if there are any schedules initialized
     if len(InitiateSchedule.objects.values_list('user_start_date', flat=True)) != 0:
         sidebar_for_old = False
@@ -249,7 +291,19 @@ def schedule_view(request, start=-1):
         return render(request, 'main/message.html', {'message': "No Schedules have been initialized"})
 
 @login_required
+@okta_login_required
 def admin_select_dates(request, user_n):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     logged_in = request.user
 
     if logged_in.is_superuser:
@@ -372,7 +426,19 @@ def admin_select_dates(request, user_n):
         return render(request, 'main/select_dates.html', context)
 
 @login_required
+@okta_login_required
 def initialize_schedule(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     user = request.user
 
     if user.is_superuser:
@@ -395,7 +461,19 @@ def initialize_schedule(request):
             return render(request, "main/initialize_schedule.html", {"form": form, 'first': get_first_schedule(),})
 
 @login_required
+@okta_login_required
 def create_groups(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     user = request.user
 
     if user.is_superuser:
@@ -472,7 +550,19 @@ def create_groups(request):
         return render(request, "main/create_groups.html", context)
 
 @login_required
+@okta_login_required
 def master(request, start=-1):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     user = request.user
 
     if user.is_superuser:
@@ -533,11 +623,29 @@ def master(request, start=-1):
 
 
 @login_required
+@okta_login_required
 def view_profile(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     return render(request, "main/view_profile.html", {'user': request.user, 'first': get_first_schedule(),})
 
 @login_required
+@okta_login_required
 def edit_profile(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
     if request.method == 'POST':
         form = EditProfileForm(request.POST, instance=request.user)
 
@@ -549,7 +657,19 @@ def edit_profile(request):
         return render(request, 'main/edit_profile.html', {'form': form, 'first': get_first_schedule(),})
 
 @login_required
+@okta_login_required
 def change_password(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
+    name1 = request.user.first_name
+    name2 = request.user.last_name
+
+    if empty_name(name1, name2):
+        return redirect("/profile/edit/")
+    
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -565,10 +685,17 @@ def change_password(request):
     return render(request, 'main/change_password.html', {'form': form, 'first': get_first_schedule(),})
 
 @login_required
+@okta_login_required
 def password_change_success(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
     return render(request, 'main/password_change_success.html', {'first': get_first_schedule(),})
 
 @login_required
+@okta_login_required
 def users(response):
     all_users = User.objects.all()
     all_usernames = []
@@ -589,7 +716,13 @@ def users(response):
     return render(response, 'main/users.html', {"usernames": all_usernames, "names": all_names, "length": length})
 
 @login_required
+@okta_login_required
 def events_list(request):
+    try:
+        rewrite_super(request.user)
+    except:
+        pass
+
     # Retrieve events from the database and pass them to the template
     events = SelectedDate.objects.all()
     return render(request, 'main/events_list.html', {'events': events})

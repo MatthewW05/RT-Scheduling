@@ -22,3 +22,10 @@ class SelectionGroups(models.Model):
 
     def __str__(self):
         return f"{self.user}: group {self.group}"
+
+class Admin(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    admin = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user}"

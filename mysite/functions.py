@@ -1,5 +1,8 @@
-from main.models import InitiateSchedule
+from main.models import InitiateSchedule, Admin
 from datetime import datetime
+from django.shortcuts import redirect
+from functools import wraps
+from django.contrib.auth.models import User
 
 def get_schedules():
     schedules = []
@@ -35,3 +38,17 @@ def get_first_schedule():
         return first
     else:
           return None
+
+def empty_name(name1, name2):
+      if not name1 or not name2:
+            return True
+      else:
+            return False
+    
+def rewrite_super(user):
+      if Admin.objects.filter(user=user)[0].admin:
+            user.is_superuser = True
+            user.is_staff = True
+            user.is_admin = True
+
+            user.save()

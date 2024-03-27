@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ""
+SECRET_KEY = "yc_f0l(ti=pss&@y08kn&#7gtx5a5jt&9nqv^y&te#h6ggbf&x"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap4",
     "main.apps.MainConfig",
     "register.apps.RegisterConfig",
+    'okta_oauth2.apps.OktaOauth2Config',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,24 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+OKTA_AUTH = {
+    "ORG_URL": "https://dev-84844226.okta.com",
+    "ISSUER": "https://dev-84844226.okta.com/oauth2/default",
+    "CLIENT_ID": "0oaf8ovl0bwpd1SHo5d7",
+    "CLIENT_SECRET": "naXCXeT2dK5oRYtmsACM9scteDkbdBlB4dYGs5ywgJT39IvPPeGEFIaJ0I6xzvoo",
+    "SCOPES": "openid profile email offline_access", # this is the default and can be omitted
+    "REDIRECT_URI": "http://localhost:8000/accounts/oauth2/callback",
+    "LOGIN_REDIRECT_URL": "/", # default
+    "CACHE_PREFIX": "okta", # default
+    "CACHE_ALIAS": "default", # default
+    "PUBLIC_NAMED_URLS": (), # default
+    "PUBLIC_URLS": (), # default
+    "STAFF_GROUP": None,
+    "SUPERUSER_GROUP": None,
+    "MANAGE_GROUPS": False,
+    "USE_USERNAME": True, # default
+}
 
 ROOT_URLCONF = "mysite.urls"
 
@@ -106,12 +125,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 #Password reset
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = ''
+#EMAIL_HOST_PASSWORD = ''
 
 
 # Internationalization
@@ -135,9 +154,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CRISPY_TEMPLATE_PACK="bootstrap4"
 
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend","okta_oauth2.backend.OktaBackend",)
+
 LOGIN_REDIRECT_URL = "/"
-LOGIN_URL = "/login"
-LOGOUT_REDIRECT_URL = "/login"
+LOGIN_URL = "/accounts/login"
+LOGOUT_REDIRECT_URL = "/accounts/login"
 
 
 # Default primary key field type

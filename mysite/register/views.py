@@ -3,10 +3,12 @@ from .forms import RegisterForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from okta_oauth2.decorators import okta_login_required
 
 # Create your views here.
 
 @login_required
+@okta_login_required
 def register(response):
     if response.method == "POST":
         form = RegisterForm(response.POST)
