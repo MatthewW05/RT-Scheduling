@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "yc_f0l(ti=pss&@y08kn&#7gtx5a5jt&9nqv^y&te#h6ggbf&x"
+SECRET_KEY = ""
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -56,10 +56,10 @@ MIDDLEWARE = [
 ]
 
 OKTA_AUTH = {
-    "ORG_URL": "https://dev-84844226.okta.com",
-    "ISSUER": "https://dev-84844226.okta.com/oauth2/default",
-    "CLIENT_ID": "0oaf8ovl0bwpd1SHo5d7",
-    "CLIENT_SECRET": "naXCXeT2dK5oRYtmsACM9scteDkbdBlB4dYGs5ywgJT39IvPPeGEFIaJ0I6xzvoo",
+    "ORG_URL": "",
+    "ISSUER": "",
+    "CLIENT_ID": "",
+    "CLIENT_SECRET": "",
     "SCOPES": "openid profile email offline_access", # this is the default and can be omitted
     "REDIRECT_URI": "http://localhost:8000/accounts/oauth2/callback",
     "LOGIN_REDIRECT_URL": "/", # default
