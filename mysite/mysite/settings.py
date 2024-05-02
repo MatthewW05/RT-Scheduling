@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = ""
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.msh-rtscheduling.com']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "crispy_forms",
     "crispy_bootstrap4",
     "main.apps.MainConfig",
@@ -45,14 +46,19 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'https://www.msh-rtscheduling.com',
 ]
 
 OKTA_AUTH = {
@@ -61,7 +67,7 @@ OKTA_AUTH = {
     "CLIENT_ID": "",
     "CLIENT_SECRET": "",
     "SCOPES": "openid profile email offline_access", # this is the default and can be omitted
-    "REDIRECT_URI": "http://localhost:8000/accounts/oauth2/callback",
+    "REDIRECT_URI": "https://www.msh-rtscheduling.com/accounts/oauth2/callback/",
     "LOGIN_REDIRECT_URL": "/", # default
     "CACHE_PREFIX": "okta", # default
     "CACHE_ALIAS": "default", # default
@@ -160,6 +166,8 @@ LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "/accounts/login"
 LOGOUT_REDIRECT_URL = "/accounts/login"
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 10 * 60
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
