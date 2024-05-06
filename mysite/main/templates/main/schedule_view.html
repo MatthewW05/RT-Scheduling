@@ -613,7 +613,7 @@
         doc.html(source, {
             callback: function(doc) {
                 // Save the PDF
-                doc.save('sample-document.pdf');
+                doc.output("dataurlnewwindow");
             },
 
             x: 0,
