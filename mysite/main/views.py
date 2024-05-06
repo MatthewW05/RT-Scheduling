@@ -11,6 +11,10 @@ from django.shortcuts import render, redirect
 from functions import *
 import calendar
 from okta_oauth2.decorators import okta_login_required
+import logging
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 @login_required
 @okta_login_required
@@ -42,12 +46,12 @@ def select_dates(request, check_error=-1):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     # Check if there are any schedules initialized
     if len(InitiateSchedule.objects.values_list('user_start_date', flat=True)) != 0:
         error_message = ""
-        
-        
+
+
         if check_error == "taken": # Check if the 'taken' parameter is set, indicating that the user attempted to select already taken dates
             error_message = "One or more of the dates you selected have been taken"
         elif check_error == "over": # Check if the 'over' parameter is set, indicating that the user attempted to select too many dates
@@ -66,7 +70,7 @@ def select_dates(request, check_error=-1):
             group = SelectionGroups.objects.filter(user=user)[0].group
         except:
             return render(request, 'main/message.html', {'message': "You have not been added to a group!"})
-        
+
         target = (selection_start + timedelta(days=(3*group)), selection_start + timedelta(days=(3*group+3)))
         can_select = False
 
@@ -95,7 +99,7 @@ def select_dates(request, check_error=-1):
         all_rows = [int(row) for row in selected_rows]
 
         date_row_dict = {}
-        
+
         if request.method == 'POST':
             form = DateSelectionForm(request.POST)
             if form.is_valid():
@@ -116,6 +120,7 @@ def select_dates(request, check_error=-1):
                         too_many = True
 
                 # Save the user's new selections
+                logger.info(f'[{datetime.now()}] --> [{user.get_full_name()}] submitted the dates: {selected_dates} in the rows: {rows}')
                 for day, row in zip(selected_dates[:20], rows[:20]):  # Iterate through selected_dates and rows together
                     if SelectedDate.objects.filter(selected_date=day).filter(row=row):
                         already_selected = True
@@ -137,7 +142,7 @@ def select_dates(request, check_error=-1):
 
         for i in range(len(selected_dates)):
             date_row_dict[selected_dates[i]] = all_rows[i]
-        
+
         selected_dates_all = SelectedDate.objects.values_list('selected_date', flat=True)
         selected_dates_all = [date.strftime('%Y-%m-%d') for date in selected_dates_all]
 
@@ -154,7 +159,7 @@ def select_dates(request, check_error=-1):
             date_row_dict_all[f"{selected_dates_all[count]},{all_rows_all[count]}"] = username
 
             count += 1
-        
+
         sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
 
         unsorted_users = []
@@ -166,20 +171,20 @@ def select_dates(request, check_error=-1):
         for o in SelectionGroups.objects.filter():
             sidebar_info[o.group+1].append(o.user.get_username())
             unsorted_users.remove(o.user)
-        
+
         sidebar_info["unsorted"] = unsorted_users
 
         context = {
-            'form': form, 
-            'days': days, 
-            'people': people, 
-            'selected_dates': selected_dates, 
-            'date_row_dict': date_row_dict, 
-            'user': user, 
-            'date_row_dict_all': date_row_dict_all, 
-            'sidebar_info': sidebar_info, 
-            'can_select': can_select, 
-            'start': target[0], 
+            'form': form,
+            'days': days,
+            'people': people,
+            'selected_dates': selected_dates,
+            'date_row_dict': date_row_dict,
+            'user': user,
+            'date_row_dict_all': date_row_dict_all,
+            'sidebar_info': sidebar_info,
+            'can_select': can_select,
+            'start': target[0],
             'end': target[1],
             'first': get_first_schedule(),
             'error_message': error_message,
@@ -205,7 +210,7 @@ def schedule_view(request, start=-1):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     # Check if there are any schedules initialized
     if len(InitiateSchedule.objects.values_list('user_start_date', flat=True)) != 0:
         sidebar_for_old = False
@@ -223,7 +228,7 @@ def schedule_view(request, start=-1):
             logged_in = logged_in[0][0]+logged_in[1][:4]
         except:
             logged_in = request.user.get_username()[:5]
-        
+
         selected_dates = SelectedDate.objects.values_list('selected_date', flat=True)
         selected_dates = [date.strftime('%Y-%m-%d') for date in selected_dates]
 
@@ -253,7 +258,7 @@ def schedule_view(request, start=-1):
             date_row_dict[f"{selected_dates[count]},{all_rows[count]}"] = name
 
             count += 1
-        
+
         user = request.user
 
         sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
@@ -267,7 +272,7 @@ def schedule_view(request, start=-1):
         for o in SelectionGroups.objects.filter():
             sidebar_info[o.group+1].append(o.user.get_username())
             unsorted_users.remove(o.user)
-        
+
         sidebar_info["unsorted"] = unsorted_users
 
         schedule = {}
@@ -282,11 +287,11 @@ def schedule_view(request, start=-1):
 
                 for sub_day in range(calendar.monthrange(day.year, day.month)[1]):
                     schedule[f"{day.year}-{day.month}-{sub_day+1}"] = ""
-        
+
         for check in date_row_dict:
             total = check.split(",")
             date = total[0].replace("-0", "-")
-            
+
             if date_row_dict[check] == name and date in schedule:
                 if 0 <= int(total[1]) <= 1 or 20 <= int(total[1]) <= 21:
                     schedule[date] = "ICU CORE,"
@@ -302,7 +307,7 @@ def schedule_view(request, start=-1):
                     schedule[date] = "OR RT,"
                 elif int(total[1]) == 16:
                     schedule[date] = "BRIDGEPOINT,"
-                
+
                 if int(total[1]) < 17:
                     schedule[date] += "DAYS"
                 else:
@@ -310,13 +315,13 @@ def schedule_view(request, start=-1):
 
         context = {
             'days': days,
-            'people': people, 
-            'selected_dates': selected_dates, 
-            'all_rows': all_rows, 
-            'date_row_dict': date_row_dict, 
-            'name': name, 
-            'logged_in': logged_in, 
-            'user': user, 
+            'people': people,
+            'selected_dates': selected_dates,
+            'all_rows': all_rows,
+            'date_row_dict': date_row_dict,
+            'name': name,
+            'logged_in': logged_in,
+            'user': user,
             'sidebar_info': sidebar_info,
             'sidebar_for_old': sidebar_for_old,
             'schedules': get_schedules(),
@@ -344,7 +349,7 @@ def admin_select_dates(request, user_n):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     logged_in = request.user
 
     if logged_in.is_superuser:
@@ -357,7 +362,7 @@ def admin_select_dates(request, user_n):
             if o.get_username() == user_n:
                 user = o
                 user_exists = True
-        
+
         # Raise an error if the specified user does not exist
         if not user_exists:
             raise LookupError('User does not exist')
@@ -373,7 +378,7 @@ def admin_select_dates(request, user_n):
         # Retrieve the last schedule start date
         start = InitiateSchedule.objects.values_list('schedule_start_date', flat=True)
         start = start[len(start)-1]
-        
+
         # Generate a list of days for the calendar view
         days = [start + timedelta(days=i) for i in range(42)]
         people = range(35)
@@ -387,7 +392,7 @@ def admin_select_dates(request, user_n):
         all_rows = [int(row) for row in selected_rows]
 
         date_row_dict = {}
-        
+
         if request.method == 'POST':
             form = DateSelectionForm(request.POST)
             if form.is_valid():
@@ -415,7 +420,7 @@ def admin_select_dates(request, user_n):
 
         for i in range(len(selected_dates)):
             date_row_dict[selected_dates[i]] = all_rows[i]
-        
+
         selected_dates_all = SelectedDate.objects.values_list('selected_date', flat=True)
         selected_dates_all = [date.strftime('%Y-%m-%d') for date in selected_dates_all]
 
@@ -433,7 +438,7 @@ def admin_select_dates(request, user_n):
             date_row_dict_all[f"{selected_dates_all[count]},{all_rows_all[count]}"] = username
 
             count += 1
-        
+
         sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
 
         unsorted_users = []
@@ -445,19 +450,19 @@ def admin_select_dates(request, user_n):
         for o in SelectionGroups.objects.filter():
             sidebar_info[o.group+1].append(o.user.get_username())
             unsorted_users.remove(o.user)
-        
+
         sidebar_info["unsorted"] = unsorted_users
 
         context = {
-            'form': form, 
-            'days': days, 
-            'people': people, 
-            'selected_dates': selected_dates, 
-            'date_row_dict': date_row_dict, 
-            'user': user, 
-            'date_row_dict_all': date_row_dict_all, 
-            'sidebar_info': sidebar_info, 
-            'can_select': can_select, 
+            'form': form,
+            'days': days,
+            'people': people,
+            'selected_dates': selected_dates,
+            'date_row_dict': date_row_dict,
+            'user': user,
+            'date_row_dict_all': date_row_dict_all,
+            'sidebar_info': sidebar_info,
+            'can_select': can_select,
             'logged_in': logged_in,
             'first': get_first_schedule(),
             'bottom_border_rows': bottom_border_rows,
@@ -479,7 +484,7 @@ def initialize_schedule(request):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     user = request.user
 
     if user.is_superuser:
@@ -514,11 +519,11 @@ def create_groups(request):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     user = request.user
 
     if user.is_superuser:
-        
+
         # Initialize lists and dictionaries to store information about users and previous selections
         all_users = []
         all_users_names = []
@@ -532,7 +537,7 @@ def create_groups(request):
                 all_users_names.append(o.get_full_name())
                 user_with_names[o.get_full_name()] = o
                 user_with_usernames[o.get_username()] = o
-        
+
         # Initialize lists to store information about previously selected users and groups
         prev_selected_dict = {}
         prev_selected_users = []
@@ -545,7 +550,7 @@ def create_groups(request):
             prev_selected_users_names.append(o.user.get_full_name())
             prev_selected_groups.append(o.group)
             prev_selected_dict[o.user] = o.group
-        
+
         # Calculate the number of users and create a range for the number of users
         num_of_users = len(all_users)
         num_of_users_list = range(num_of_users)
@@ -603,7 +608,7 @@ def master(request, start=-1):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     user = request.user
 
     if user.is_superuser:
@@ -612,7 +617,7 @@ def master(request, start=-1):
                 start = datetime.strptime(start, "%Y-%m-%d").date()
             else:
                 start = get_first_schedule_date()
-            
+
             user_date_dict = {}
             user_row_dict = {}
             all_schedule_info = SelectedDate.objects.filter()
@@ -628,14 +633,14 @@ def master(request, start=-1):
                         except:
                             name = item.user.get_username()
                             display = name[:5]
-                        
+
                         if (name, display) in user_date_dict:
                             user_date_dict[(name, display)].append(item.selected_date)
                             user_row_dict[(name, display)].append(item.row)
                         else:
                             user_date_dict[(name, display)] = [item.selected_date]
                             user_row_dict[(name, display)] = [item.row]
-            
+
             sidebar_info = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
 
             unsorted_users = []
@@ -647,13 +652,13 @@ def master(request, start=-1):
             for o in SelectionGroups.objects.filter():
                 sidebar_info[o.group+1].append(o.user.get_username())
                 unsorted_users.remove(o.user)
-            
+
             sidebar_info["unsorted"] = unsorted_users
 
             context = {
                 "user_date_dict": user_date_dict,
                 "user_row_dict": user_row_dict,
-                "sidebar_info": sidebar_info, 
+                "sidebar_info": sidebar_info,
                 "days": days,
                 'schedules': get_schedules(),
                 'first': get_first_schedule(),
@@ -676,7 +681,7 @@ def view_profile(request):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     return render(request, "main/view_profile.html", {'user': request.user, 'first': get_first_schedule(),})
 
 @login_required
@@ -710,7 +715,7 @@ def change_password(request):
 
     if empty_name(name1, name2):
         return redirect("/profile/edit/")
-    
+
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -722,7 +727,7 @@ def change_password(request):
             messages.error(request, 'Please correct the error below.')
     else:
         form = PasswordChangeForm(request.user)
-    
+
     return render(request, 'main/change_password.html', {'form': form, 'first': get_first_schedule(),})
 
 @login_required
