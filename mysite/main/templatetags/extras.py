@@ -1,5 +1,6 @@
 from django import template
 from django.contrib.auth.models import User
+import datetime
 
 register = template.Library()
 
@@ -58,3 +59,23 @@ def find(l, i):
         return l.index(i)
     except:
         return None
+
+@register.filter
+def get_date(date):
+    date_lst = date.split("-")
+
+    return datetime.date(int(date_lst[0]), int(date_lst[1]), int(date_lst[2]))
+
+@register.filter
+def get_role(position):
+    try:
+        return position.split(",")[0]
+    except:
+        return ""
+
+@register.filter
+def get_time(position):
+    try:
+        return position.split(",")[1]
+    except:
+        return ""

@@ -9,6 +9,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from functions import *
+import calendar
 from okta_oauth2.decorators import okta_login_required
 
 @login_required
@@ -269,8 +270,46 @@ def schedule_view(request, start=-1):
         
         sidebar_info["unsorted"] = unsorted_users
 
+        schedule = {}
+        gaps = []
+
+        for day in days:
+            if f"{day.year}-{day.month}-1" not in schedule:
+                full = calendar.monthrange(day.year, day.month)[1]+((calendar.monthrange(day.year, day.month)[0]+1)%7)
+                gap = 6-(full//7+bool(full%7))
+
+                gaps.append(200*gap)
+
+                for sub_day in range(calendar.monthrange(day.year, day.month)[1]):
+                    schedule[f"{day.year}-{day.month}-{sub_day+1}"] = ""
+        
+        for check in date_row_dict:
+            total = check.split(",")
+            date = total[0].replace("-0", "-")
+            
+            if date_row_dict[check] == name and date in schedule:
+                if 0 <= int(total[1]) <= 1 or 20 <= int(total[1]) <= 21:
+                    schedule[date] = "ICU CORE,"
+                elif 2 <= int(total[1]) <= 5 or 22 <= int(total[1]) <= 25:
+                    schedule[date] = "CASEROOM,"
+                elif 6 <= int(total[1]) <= 12 or 26 <= int(total[1]):
+                    schedule[date] = "ROTATING,"
+                elif int(total[1]) == 13:
+                    schedule[date] = "MEDICINE,"
+                elif int(total[1]) == 14:
+                    schedule[date] = "OR C/Section,"
+                elif int(total[1]) == 15:
+                    schedule[date] = "OR RT,"
+                elif int(total[1]) == 16:
+                    schedule[date] = "BRIDGEPOINT,"
+                
+                if int(total[1]) < 17:
+                    schedule[date] += "DAYS"
+                else:
+                    schedule[date] += "NIGHTS"
+
         context = {
-            'days': days, 
+            'days': days,
             'people': people, 
             'selected_dates': selected_dates, 
             'all_rows': all_rows, 
@@ -284,6 +323,8 @@ def schedule_view(request, start=-1):
             'first': get_first_schedule(),
             'bottom_border_rows': bottom_border_rows,
             'top_border_rows': top_border_rows,
+            'schedule': schedule,
+            'gaps': gaps,
         }
 
         return render(request, 'main/schedule_view.html', context)
