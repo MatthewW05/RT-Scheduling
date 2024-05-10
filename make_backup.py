@@ -1,11 +1,8 @@
 import datetime
-from django.core.management import call_command
-import os
+import subprocess
 
 today = datetime.date.today()
 
-backup_dir = r"/home/MatthewWong/backups"
-backup_file = os.path.join(backup_dir, f'{today}.json')
+command = f"cd /home/MatthewWong/backups; mysqldump -u MatthewWong -h MatthewWong.mysql.pythonanywhere-services.com --set-gtid-purged=OFF --no-tablespaces 'MatthewWong$default'  > /home/MatthewWong/backups/{today}.sql"
 
-with open(backup_file, 'w') as f:
-    call_command('dumpdata', stdout=f)
+subprocess.run(command, shell=True)
